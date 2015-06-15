@@ -3,7 +3,7 @@ var React = require("react");
 var MessagesList = React.createClass({
 	render: function() {
 		return (<ul>
-					<li>Message</li>
+					{this.props.messages.map(function(m) { return <li>{m.sender}: {m.message}</li> })}
 				</ul>);
 	}
 });

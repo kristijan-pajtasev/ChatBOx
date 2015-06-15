@@ -5,7 +5,6 @@ var MessageForm = React.createClass({displayName: "MessageForm",
 		console.log("sendMessage");
 		var message = this.refs.message.getDOMNode().value;
 		console.log("Message: " + message)
-		this.refs.message.getDOMNode().value = "";
 	},
 	render: function() {
 		return React.createElement("div", null, 

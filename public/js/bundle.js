@@ -60,9 +60,12 @@
 	var MessagesList = __webpack_require__(4);
 
 	var Chat = React.createClass({displayName: "Chat",
+		getInitialState: function() {
+			return { messages: [] };
+		},
 		render: function() {
 			return React.createElement("div", null, 
-						React.createElement(MessagesList, null), 
+						React.createElement(MessagesList, {messages: this.state.messages}), 
 
 						React.createElement(MessageForm, null)
 					)
@@ -85,11 +88,17 @@
 	var React = __webpack_require__(2);
 
 	var MessageForm = React.createClass({displayName: "MessageForm",
+		sendMessage: function() {
+			console.log("sendMessage");
+			var message = this.refs.message.getDOMNode().value;
+			console.log("Message: " + message)
+			this.refs.message.getDOMNode().value = "";
+		},
 		render: function() {
 			return React.createElement("div", null, 
 						React.createElement("textarea", {ref: "message"}
 						), 
-						React.createElement("button", null, "Send")
+						React.createElement("button", {onClick: this.sendMessage}, "Send")
 					)
 		}
 	});
@@ -105,7 +114,7 @@
 	var MessagesList = React.createClass({displayName: "MessagesList",
 		render: function() {
 			return (React.createElement("ul", null, 
-						React.createElement("li", null, "Message")
+						this.props.messages.map(function(m) { return React.createElement("li", null, m.sender, ": ", m.message) })
 					));
 		}
 	});
@@ -18692,7 +18701,7 @@
 
 	"use strict";
 
-	var camelize = __webpack_require__(153);
+	var camelize = __webpack_require__(152);
 
 	var msPattern = /^-ms-/;
 
@@ -18800,7 +18809,7 @@
 
 	"use strict";
 
-	var hyphenate = __webpack_require__(152);
+	var hyphenate = __webpack_require__(153);
 
 	var msPattern = /^ms-/;
 
@@ -18921,7 +18930,7 @@
 
 	var ReactReconciler = __webpack_require__(21);
 
-	var flattenChildren = __webpack_require__(157);
+	var flattenChildren = __webpack_require__(154);
 	var instantiateReactComponent = __webpack_require__(85);
 	var shouldUpdateReactComponent = __webpack_require__(87);
 
@@ -19283,9 +19292,9 @@
 
 	var ExecutionEnvironment = __webpack_require__(26);
 
-	var createNodesFromMarkup = __webpack_require__(154);
+	var createNodesFromMarkup = __webpack_require__(155);
 	var emptyFunction = __webpack_require__(88);
-	var getMarkupWrap = __webpack_require__(155);
+	var getMarkupWrap = __webpack_require__(156);
 	var invariant = __webpack_require__(29);
 
 	var OPEN_TAG_NAME_EXP = /^(<[^ \/>]+)/;
@@ -19516,7 +19525,7 @@
 
 	var ExecutionEnvironment = __webpack_require__(26);
 
-	var getNodeForCharacterOffset = __webpack_require__(156);
+	var getNodeForCharacterOffset = __webpack_require__(157);
 	var getTextContentAccessor = __webpack_require__(144);
 
 	/**
@@ -19867,6 +19876,42 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
+	 * @providesModule camelize
+	 * @typechecks
+	 */
+
+	var _hyphenPattern = /-(.)/g;
+
+	/**
+	 * Camelcases a hyphenated string, for example:
+	 *
+	 *   > camelize('background-color')
+	 *   < "backgroundColor"
+	 *
+	 * @param {string} string
+	 * @return {string}
+	 */
+	function camelize(string) {
+	  return string.replace(_hyphenPattern, function(_, character) {
+	    return character.toUpperCase();
+	  });
+	}
+
+	module.exports = camelize;
+
+
+/***/ },
+/* 153 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
 	 * @providesModule hyphenate
 	 * @typechecks
 	 */
@@ -19893,10 +19938,10 @@
 
 
 /***/ },
-/* 153 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
+	/* WEBPACK VAR INJECTION */(function(process) {/**
 	 * Copyright 2013-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
@@ -19904,32 +19949,57 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule camelize
-	 * @typechecks
+	 * @providesModule flattenChildren
 	 */
 
-	var _hyphenPattern = /-(.)/g;
+	'use strict';
+
+	var traverseAllChildren = __webpack_require__(32);
+	var warning = __webpack_require__(33);
 
 	/**
-	 * Camelcases a hyphenated string, for example:
-	 *
-	 *   > camelize('background-color')
-	 *   < "backgroundColor"
-	 *
-	 * @param {string} string
-	 * @return {string}
+	 * @param {function} traverseContext Context passed through traversal.
+	 * @param {?ReactComponent} child React child component.
+	 * @param {!string} name String name of key path to child.
 	 */
-	function camelize(string) {
-	  return string.replace(_hyphenPattern, function(_, character) {
-	    return character.toUpperCase();
-	  });
+	function flattenSingleChildIntoContext(traverseContext, child, name) {
+	  // We found a component instance.
+	  var result = traverseContext;
+	  var keyUnique = !result.hasOwnProperty(name);
+	  if ("production" !== process.env.NODE_ENV) {
+	    ("production" !== process.env.NODE_ENV ? warning(
+	      keyUnique,
+	      'flattenChildren(...): Encountered two children with the same key, ' +
+	      '`%s`. Child keys must be unique; when two children share a key, only ' +
+	      'the first child will be used.',
+	      name
+	    ) : null);
+	  }
+	  if (keyUnique && child != null) {
+	    result[name] = child;
+	  }
 	}
 
-	module.exports = camelize;
+	/**
+	 * Flattens children that are typically specified as `props.children`. Any null
+	 * children will not be included in the resulting object.
+	 * @return {!object} flattened children keyed by name.
+	 */
+	function flattenChildren(children) {
+	  if (children == null) {
+	    return children;
+	  }
+	  var result = {};
+	  traverseAllChildren(children, flattenSingleChildIntoContext, result);
+	  return result;
+	}
 
+	module.exports = flattenChildren;
+
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ },
-/* 154 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -19949,7 +20019,7 @@
 	var ExecutionEnvironment = __webpack_require__(26);
 
 	var createArrayFromMixed = __webpack_require__(158);
-	var getMarkupWrap = __webpack_require__(155);
+	var getMarkupWrap = __webpack_require__(156);
 	var invariant = __webpack_require__(29);
 
 	/**
@@ -20022,7 +20092,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ },
-/* 155 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20144,7 +20214,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ },
-/* 156 */
+/* 157 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20221,67 +20291,6 @@
 
 	module.exports = getNodeForCharacterOffset;
 
-
-/***/ },
-/* 157 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2013-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule flattenChildren
-	 */
-
-	'use strict';
-
-	var traverseAllChildren = __webpack_require__(32);
-	var warning = __webpack_require__(33);
-
-	/**
-	 * @param {function} traverseContext Context passed through traversal.
-	 * @param {?ReactComponent} child React child component.
-	 * @param {!string} name String name of key path to child.
-	 */
-	function flattenSingleChildIntoContext(traverseContext, child, name) {
-	  // We found a component instance.
-	  var result = traverseContext;
-	  var keyUnique = !result.hasOwnProperty(name);
-	  if ("production" !== process.env.NODE_ENV) {
-	    ("production" !== process.env.NODE_ENV ? warning(
-	      keyUnique,
-	      'flattenChildren(...): Encountered two children with the same key, ' +
-	      '`%s`. Child keys must be unique; when two children share a key, only ' +
-	      'the first child will be used.',
-	      name
-	    ) : null);
-	  }
-	  if (keyUnique && child != null) {
-	    result[name] = child;
-	  }
-	}
-
-	/**
-	 * Flattens children that are typically specified as `props.children`. Any null
-	 * children will not be included in the resulting object.
-	 * @return {!object} flattened children keyed by name.
-	 */
-	function flattenChildren(children) {
-	  if (children == null) {
-	    return children;
-	  }
-	  var result = {};
-	  traverseAllChildren(children, flattenSingleChildIntoContext, result);
-	  return result;
-	}
-
-	module.exports = flattenChildren;
-
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ },
 /* 158 */

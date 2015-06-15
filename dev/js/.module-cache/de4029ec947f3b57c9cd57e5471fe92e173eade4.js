@@ -7,23 +7,22 @@ var Emitter = require("./Emitter");
 
 var MessagesStore = require("./Stores/MessagesStore");
 
-var Chat = React.createClass({
+var Chat = React.createClass({displayName: "Chat",
 	getInitialState: function() {
 		Emitter.on("MESSAGES_RECEIVED", this.showMessages);
 		MessageActions.get();
 		return { messages: [] };
 	},
 	showMessages: function() {
-		var messages =  MessagesStore.get();
-		this.setState({ messages: messages });
+		console.log("messages received")
 		MessageActions.get();
 	},
 	render: function() {
-		return <div>
-					<MessagesList messages={this.state.messages} />
+		return React.createElement("div", null, 
+					React.createElement(MessagesList, {messages: this.state.messages}), 
 
-					<MessageForm />
-				</div>
+					React.createElement(MessageForm, null)
+				)
 	}
 });
 

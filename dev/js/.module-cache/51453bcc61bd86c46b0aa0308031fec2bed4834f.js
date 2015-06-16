@@ -11,7 +11,7 @@ var MessagesStore = require("./Stores/MessagesStore");
 var Chat = React.createClass({displayName: "Chat",
 	getInitialState: function() {
 		Emitter.on("MESSAGES_RECEIVED", this.showMessages);
-		Emitter.on("LOGIN", this.setUsername);
+		MessageActions.get();
 		return { messages: [] };
 	},
 	showMessages: function() {
@@ -19,18 +19,11 @@ var Chat = React.createClass({displayName: "Chat",
 		this.setState({ messages: messages });
 		MessageActions.get();
 	},
-	setUsername: function(payload) {
-		this.setState({ username: payload.username });
-		MessageActions.get();
-	},
 	render: function() {
-		if(!this.state.username) {
-			return React.createElement(LoginForm, null)
-		}
 		return React.createElement("div", null, 
 					React.createElement(MessagesList, {messages: this.state.messages}), 
 
-					React.createElement(MessageForm, {username: this.state.username})
+					React.createElement(MessageForm, null)
 				)
 	}
 });

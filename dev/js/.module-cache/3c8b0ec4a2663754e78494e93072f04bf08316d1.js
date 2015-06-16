@@ -10,8 +10,8 @@ var MessagesStore = require("./Stores/MessagesStore");
 
 var Chat = React.createClass({displayName: "Chat",
 	getInitialState: function() {
-		Emitter.on("MESSAGES_RECEIVED", this.showMessages);
 		Emitter.on("LOGIN", this.setUsername);
+		MessageActions.get();
 		return { messages: [] };
 	},
 	showMessages: function() {
@@ -20,8 +20,8 @@ var Chat = React.createClass({displayName: "Chat",
 		MessageActions.get();
 	},
 	setUsername: function(payload) {
+		Emitter.on("MESSAGES_RECEIVED", this.showMessages);
 		this.setState({ username: payload.username });
-		MessageActions.get();
 	},
 	render: function() {
 		if(!this.state.username) {

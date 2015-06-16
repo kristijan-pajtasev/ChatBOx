@@ -8,11 +8,11 @@ var Emitter = (function() {
 			}
 			callbacks[type].push({action: callback, isActive: true})
 		},
-		emit: function(type) {
+		emit: function(type, payload) {
 			if(!!callbacks[type]) {
 				for(var i = 0, length = callbacks[type].length; i < length; i++) {
 					if(callbacks[type][i].isActive) {
-						callbacks[type][i].action();
+						callbacks[type][i].action(payload);
 					}
 				}
 			}

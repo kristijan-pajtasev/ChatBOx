@@ -3,7 +3,9 @@ var MessageActions = require("./Actions/MessageActions");
 
 var MessageForm = React.createClass({displayName: "MessageForm",
 	sendMessage: function() {
+		console.log("sendMessage");
 		var message = this.refs.message.getDOMNode().value;
+		console.log("Message: " + message)
 		this.refs.message.getDOMNode().value = "";
 		MessageActions.send(this.props.username, message);
 	},

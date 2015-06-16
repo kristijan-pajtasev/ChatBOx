@@ -12,6 +12,7 @@ var Chat = React.createClass({displayName: "Chat",
 	getInitialState: function() {
 		Emitter.on("MESSAGES_RECEIVED", this.showMessages);
 		Emitter.on("LOGIN", this.setUsername);
+		MessageActions.get();
 		return { messages: [] };
 	},
 	showMessages: function() {
@@ -21,7 +22,6 @@ var Chat = React.createClass({displayName: "Chat",
 	},
 	setUsername: function(payload) {
 		this.setState({ username: payload.username });
-		MessageActions.get();
 	},
 	render: function() {
 		if(!this.state.username) {
@@ -30,7 +30,7 @@ var Chat = React.createClass({displayName: "Chat",
 		return React.createElement("div", null, 
 					React.createElement(MessagesList, {messages: this.state.messages}), 
 
-					React.createElement(MessageForm, {username: this.state.username})
+					React.createElement(MessageForm, null)
 				)
 	}
 });
